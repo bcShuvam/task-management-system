@@ -29,7 +29,7 @@ const createSubscription = async (req, res) => {
     const subscription = await Subscription.create({
       name,
       maxCompanies,
-      maxCompanies,
+      maxUsers,
       maxPhotoUploads,
       duration,
       price,
