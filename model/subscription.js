@@ -7,7 +7,8 @@ const SubscriptionSchema = mongoose.Schema({
     maxPhotoUploads: {type: Number, required: true},
     duration: {type: Number, required: true},
     price: {type: Number, required: true},
-    message: {type: String, default: ""}
+    message: {type: String, default: ""},
+    status: {type: Boolean, default: true}
 });
 
 const Subscription = mongoose.model('Subscription', SubscriptionSchema);

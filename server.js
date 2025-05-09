@@ -28,6 +28,7 @@ app.use(session({
 
 app.use('/api/test', require('./routes/test'));
 app.use('/api/user', require('./routes/authRoutes'));
+app.use('/api/user', require('./routes/userRoute'));
 app.use('/api/subscription', require('./routes/subscriptionRoutes'));
 
 mongoose.connection.once("open", () => {
