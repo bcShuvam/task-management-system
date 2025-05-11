@@ -104,7 +104,7 @@ const login = async (req, res) => {
 
         if(!user.isVerified) return res.status(400).json({message: 'Email not verified. Please verify OTP.'});
         req.session.user = {id: user._id, email: user.email, name: user.name};
-        return res.status(200).json({message: 'Login successful'});
+        return res.status(200).json({message: 'Login successful', user: user});
     } catch (err) {
         return res.status(500).json({message: 'Error logging in', error: err.message});
     }
