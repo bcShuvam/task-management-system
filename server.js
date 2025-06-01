@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const connectDB = require("./config/dbConnect");
 const PORT = process.env.PORT || 3001;
+const authMiddleware = require('./middleware/authMiddleware');
 connectDB();
 
 // built-in middleware to handle urlencoded data
@@ -28,8 +29,13 @@ app.use(session({
 
 app.use('/api/test', require('./routes/test'));
 app.use('/api/user', require('./routes/authRoutes'));
+app.use(authMiddleware);
 app.use('/api/user', require('./routes/userRoute'));
 app.use('/api/subscription', require('./routes/subscriptionRoutes'));
+app.use('/api/category', require('./routes/category'));
+app.use('/api/subcategory', require('./routes/subCategory'));
+app.use('/api/company', require('./routes/company'));
+app.use('/api/issue', require('./routes/issueRoutes'));
 
 mongoose.connection.once("open", () => {
     console.log("Connected to MongoDB...");
