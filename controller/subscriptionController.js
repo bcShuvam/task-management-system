@@ -1,5 +1,4 @@
 const Subscription = require("../model/subscription");
-const { subscribe } = require("../routes/test");
 
 const createSubscription = async (req, res) => {
   try {
