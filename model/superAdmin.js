@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const SuperAdminSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
@@ -16,6 +16,6 @@ const UserSchema = new mongoose.Schema({
     totalActiveSales: {type: Number, default: 0}
 });
 
-const User = mongoose.model('User', UserSchema);
+const SuperAdmin = mongoose.model('SuperAdmin', SuperAdminSchema);
 
-module.exports = User;
+module.exports = SuperAdmin;
