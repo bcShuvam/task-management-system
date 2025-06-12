@@ -13,20 +13,21 @@ const {
     updateCompanyUser,
     deleteCompanyUser
 } = require('../controller/companyController');
+const verifyRoles = require('../middleware/verifyRoles');
 
 // Company routes
-router.post('/create/:id', createCompany);
-router.get('/all/:id', getAllCompanies);
-router.get('/:id', getCompanyById);
-router.put('/:id', updateCompany);
-router.delete('/:id', deleteCompany);
+router.post('/create', createCompany, verifyRoles("Admin"));
+router.get('/all', getAllCompanies, verifyRoles("Admin"));
+router.get('/:id', getCompanyById, verifyRoles("Admin"));
+router.put('/update/:id', updateCompany, verifyRoles("Admin"));
+router.delete('/delete/:id', deleteCompany, verifyRoles("Admin"));
 
 // CompanyUser routes
-router.post('/user/:id', createCompanyUser);
+router.post('/user/create/:id', createCompanyUser);
 router.get('/user/:id', getAllCompanyUsers);
 router.get('/usernames/:id', getCompanyUsernames);
 router.get('/user/:id', getCompanyUserById);
-router.put('/user/:id', updateCompanyUser);
-router.delete('/user/:id', deleteCompanyUser);
+router.put('/user/update/:id', updateCompanyUser);
+router.delete('/user/delete/:id', deleteCompanyUser);
 
 module.exports = router;

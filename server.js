@@ -6,8 +6,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const connectDB = require("./config/dbConnect");
 const PORT = process.env.PORT || 3001;
-const authMiddleware = require('./middleware/authMiddleware');
+const verifyJWT = require('./middleware/verifyJWT');
+const verifyRole = require('./middleware/verifyRoles');
 connectDB();
+
+// Routes
+const authRoute = require('./controller/userAuthController');
 
 // built-in middleware to handle urlencoded data
 // in other words, form data:
@@ -28,12 +32,12 @@ app.use(session({
 }));
 
 app.use('/api/test', require('./routes/test'));
-app.use('/api/user', require('./routes/authRoutes'));
-app.use(authMiddleware);
-app.use('/api/user', require('./routes/userRoute'));
-app.use('/api/subscription', require('./routes/subscriptionRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use(verifyJWT);
+app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
+app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));
 app.use('/api/category', require('./routes/category'));
-app.use('/api/subcategory', require('./routes/subCategory'));
+app.use('/api/subcategory', require('./routes/subcategory'));
 app.use('/api/company', require('./routes/company'));
 app.use('/api/issue', require('./routes/issueRoutes'));
 

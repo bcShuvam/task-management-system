@@ -1,4 +1,5 @@
 const Subscription = require("../model/subscription");
+const verifyRole = require('../middleware/verifyRoles');
 
 const createSubscription = async (req, res) => {
   try {
@@ -21,8 +22,9 @@ const createSubscription = async (req, res) => {
     )
       return res.status(400).json({
         message:
-          "name, maxCompanies, maxUsers, maxPhotoUploads, duration, price are required",
+          "name, maxCompanies, maxUsers, maxPhotoUploads, duration and price are required",
       });
+
     const subscription = await Subscription.create({
       name,
       maxCompanies,
@@ -32,9 +34,11 @@ const createSubscription = async (req, res) => {
       price,
       message,
     });
+
     return res
       .status(201)
-      .json({ message: "New subscription created successfully" });
+      .json({ message: "New subscription created successfully", subscription });
+      
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -61,7 +65,8 @@ const getSubscriptionsName = async (req, res) => {
       return res.status(400).json({ message: "Subscription not found" });
     const subscriptionName = foundSubscriptions.map((sub) => ({
       _id: sub._id,
-      name: sub.name
+      name: sub.name,
+      duration: sub.duration
     }));
     return res.status(200).json({
       message: "Found subscription name",
