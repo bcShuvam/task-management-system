@@ -1,8 +1,11 @@
+const SuperAdmin = require("../model/superAdmin");
+const Admin = require("../model/admin");
 const User = require("../model/user");
-const CompanyUser = require("../model/companyUser");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const Subscription = require('../model/subscription');
+const jwt = require('jsonwebtoken');
 
 // Email Transporter Setup
 const transporter = nodemailer.createTransport({
@@ -16,7 +19,8 @@ const transporter = nodemailer.createTransport({
 // OTP Generator
 const generateOTP = () => crypto.randomInt(100000, 999999).toString();
 
-const register = async (req, res) => {
+
+const registerSuperAdmin = async (req, res) => {
     try {
         let {
             name,
@@ -24,42 +28,159 @@ const register = async (req, res) => {
             password,
             role,
             phone,
-            subscription,
-            subscriptionStatus,
+            gender,
+            address,
+            profileImage,
         } = req.body;
 
-        if (!name || !email || !password || !role || !phone) {
+        if (!name || !email || !password || !role || !phone || !gender) {
             return res.status(400).json({
-                message: "name, email, password, role and phone are required",
+                message: "name, email, password, role, gender and phone are required",
             });
         }
 
-        const existingUser = await User.findOne({ email });
+        const foundSuperAdmin = await SuperAdmin.findOne({email});
+        if (foundSuperAdmin)
+            return res.status(400).json({ message: "email already exists" });
+
+        const plainPassword = password;
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new SuperAdmin({
+            name,
+            email,
+            password: hashedPassword,
+            phone,
+            role,
+            phone,
+            profileImage,
+            gender,
+            address,
+        });
+
+        await newUser.save();
+
+        // Send welcome email
+        await transporter.sendMail({
+            from: "dean42328@gmail.com",
+            to: email,
+            subject: "Welcome to Task Management System",
+            text: `Hello ${name},
+
+        Welcome to Task Management System (TMS)!
+
+        Your account has been successfully created. You can now log in using the credentials below:
+
+        📧 Email: ${email}
+        🔐 Password: ${plainPassword}
+        👨‍💼 Role: ${role}
+
+        📱 Download the TMS app: 
+        - Android (Play Store): coming soon on play store
+        - iOS (App Store): coming soon on app store
+
+        We recommend changing your password after your first login for security purposes.
+
+        If you have any questions, feel free to reach out.
+
+        Best regards,  
+        The TMS Team`,
+        });
+
+        return res.status(201).json({
+            message:
+                "User registered successfully. Please check your email for login details.",
+        });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+const registerAdmin = async (req, res) => {
+    try {
+        console.log(req.user);
+        const superAdminId = req.user.id;
+
+        let {
+            name,
+            email,
+            password,
+            role,
+            phone,
+            gender,
+            address,
+            profileImage,
+            subscriptionId,
+            discountRate,
+            isMainAdmin,
+            totalCompanies,
+            totalAdmins,
+            totalUsers,
+            activationDate,
+            expirationDate,
+            totalDaysRemaining,
+        } = req.body;
+
+        if (!name || !email || !password || !role || !phone || !subscriptionId || !activationDate || !expirationDate || !gender) {
+            return res.status(400).json({
+                message: "name, email, password, role, phone, gender, subscriptionId, activationDate and expirationDate are required",
+            });
+        }
+
+        const existingUser = await Admin.findOne({ email });
         if (existingUser)
             return res.status(400).json({ message: "User already exists" });
 
         const plainPassword = password;
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!subscription) {
-            subscription = "";
-            subscriptionStatus = false;
-        } else {
-            subscriptionStatus = true;
-        }
+        const foundSuperAdmin = await SuperAdmin.findById(superAdminId);
+        if(!foundSuperAdmin) return res.status(400).json({message: 'Super Admin not found'});
+        const AssignedSubscription = await Subscription.findById(subscriptionId);
+        if(!AssignedSubscription) return res.status(400).json({message: 'Subscription not found'});
 
-        const newUser = new User({
+        const newUser = new Admin({
+            superAdminId: isMainAdmin === true ? superAdminId : null,
             name,
             email,
             password: hashedPassword,
             phone,
             role,
-            subscription,
-            subscriptionStatus,
-            // isVerified: true,
+            phone,
+            gender,
+            address,
+            profileImage,
+            subscriptionId,
+            isMainAdmin,
+            totalCompanies,
+            totalAdmins,
+            totalUsers,
+            activationDate,
+            expirationDate,
+            totalDaysRemaining,
+            discountRate
         });
 
+        //    subscriptionId: isMainAdmin === true ? subscriptionId : null,
+        //     isMainAdmin,
+        //     totalCompanies: isMainAdmin === true ? totalCompanies : null,
+        //     totalAdmins: isMainAdmin === true ? totalAdmins : null,
+        //     totalUsers: isMainAdmin === true ? totalUsers : null,
+        //     activationDate: isMainAdmin === true ? activationDate : null,
+        //     expirationDate: isMainAdmin === true ? expirationDate : null,
+        //     totalDaysRemaining: isMainAdmin === true ? totalDaysRemaining : null,
+        //     discountRate: isMainAdmin === true ? discountRate : null,
+
+        foundSuperAdmin.totalEarnings += AssignedSubscription.price;
+        foundSuperAdmin.totalSales += 1;
+        foundSuperAdmin.totalActiveSales += 1;
+
+        AssignedSubscription.totalEarning += AssignedSubscription.price;
+        AssignedSubscription.totalSubscriptionSold += 1;
+
         await newUser.save();
+        await foundSuperAdmin.save();
+        await AssignedSubscription.save();
 
         // Send welcome email
         await transporter.sendMail({
@@ -89,7 +210,7 @@ const register = async (req, res) => {
 
         return res.status(201).json({
             message:
-                "User registered successfully. Please check your email for login details.",
+                "User registered successfully. Please check your email for login details.", superAdmin: foundSuperAdmin
         });
     } catch (err) {
         return res.status(500).json({ message: err.message });
@@ -100,23 +221,37 @@ const verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
+        const superAdmin = await SuperAdmin.findOne({ email });
+        const admin = await Admin.findOne({ email });
         const user = await User.findOne({ email });
-        const companyUser = await CompanyUser.findOne({ email });
 
-        if (!user && !companyUser)
+        if (!superAdmin && !admin && !user)
             return res.status(400).json({ message: "User not found" });
 
-        if (user?.isVerified || companyUser?.isVerified)
+        if (superAdmin?.isVerified || admin?.isVerified || user?.isVerified)
             return res.status(400).json({ message: "User already verified" });
 
         const otpValid =
-            (user && user.otp === otp && user.otpExpiry > new Date()) ||
-            (companyUser &&
-                companyUser.otp === otp &&
-                companyUser.otpExpiry > new Date());
+            (superAdmin && superAdmin.otp === otp && superAdmin.otpExpiry > new Date()) ||
+            (admin && admin.otp === otp && admin.otpExpiry > new Date()) ||
+            (user && user.otp === otp && user.otpExpiry > new Date());
 
         if (!otpValid) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
+        }
+
+        if (superAdmin) {
+            superAdmin.isVerified = true;
+            superAdmin.otp = undefined;
+            superAdmin.otpExpiry = undefined;
+            await superAdmin.save();
+        }
+        
+        if (admin) {
+            admin.isVerified = true;
+            admin.otp = undefined;
+            admin.otpExpiry = undefined;
+            await admin.save();
         }
 
         if (user) {
@@ -124,13 +259,6 @@ const verifyOTP = async (req, res) => {
             user.otp = undefined;
             user.otpExpiry = undefined;
             await user.save();
-        }
-
-        if (companyUser) {
-            companyUser.isVerified = true;
-            companyUser.otp = undefined;
-            companyUser.otpExpiry = undefined;
-            await companyUser.save();
         }
 
         return res
@@ -145,30 +273,37 @@ const resendOTP = async (req, res) => {
     try {
         const { email } = req.body;
 
+        const superAdmin = await SuperAdmin.findOne({ email });
+        const admin = await Admin.findOne({ email });
         const user = await User.findOne({ email });
-        const companyUser = await CompanyUser.findOne({ email });
 
-        if (!user && !companyUser) {
+        if (!superAdmin && !admin && !user) {
             return res.status(400).json({ message: "User not found" });
         }
 
-        if (user?.isVerified || companyUser?.isVerified) {
+        if (superAdmin?.isVerified || admin?.isVerified || user?.isVerified) {
             return res.status(400).json({ message: "User is already verified" });
         }
 
         const otp = await generateOTP();
         const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
+        if (superAdmin) {
+            superAdmin.otp = otp;
+            superAdmin.otpExpiry = expiry;
+            await superAdmin.save();
+        }
+
+        if (admin) {
+            admin.otp = otp;
+            admin.otpExpiry = expiry;
+            await admin.save();
+        }
+
         if (user) {
             user.otp = otp;
             user.otpExpiry = expiry;
             await user.save();
-        }
-
-        if (companyUser) {
-            companyUser.otp = otp;
-            companyUser.otpExpiry = expiry;
-            await companyUser.save();
         }
 
         await transporter.sendMail({
@@ -203,8 +338,9 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        const superAdmin = await SuperAdmin.findOne({ email });
+        const admin = await Admin.findOne({ email });
         const user = await User.findOne({ email });
-        const companyUser = await CompanyUser.findOne({ email });
 
         // Helper to generate and send OTP
         const sendOTP = async (userObj, type = "User") => {
@@ -221,58 +357,107 @@ const login = async (req, res) => {
             });
         };
 
+        if (superAdmin) {
+            const match = await bcrypt.compare(password, superAdmin.password);
+            if (!match)
+                return res.status(400).json({ message: "Incorrect password" });
+
+            if (!superAdmin.isVerified) {
+                await sendOTP(superAdmin, "User");
+                return res.status(400).json({
+                    message: "Email not verified. OTP has been sent again.",
+                    isVerified: false,
+                });
+            }
+
+            const payload = {
+                id: superAdmin._id,
+                email: superAdmin.email,
+                name: superAdmin.name,
+                role: superAdmin.role
+            }
+
+            const token = jwt.sign(
+                payload,
+                process.env.JWT_SECRET,
+                { expiresIn: '30d' }
+            );
+
+            const cleanUser = superAdmin.toObject();
+            delete cleanUser.password;
+
+            return res
+                .status(200)
+                .json({ message: "Login successful", token, user: cleanUser });
+        }
+
+        if (admin) {
+            const match = await bcrypt.compare(password, admin.password);
+            if (!match)
+                return res.status(400).json({ message: "Incorrect password" });
+
+            if (!admin.isVerified) {
+                await sendOTP(admin, "Company User");
+                return res.status(400).json({
+                    message: "Email not verified. OTP has been sent again.",
+                    isVerified: false,
+                });
+            }
+
+            const payload = {
+                id: admin._id,
+                email: admin.email,
+                name: admin.name,
+                role: admin.role,
+                isMainAdmin: admin.isMainAdmin,
+            }
+
+            const token = jwt.sign(
+                payload,
+                process.env.JWT_SECRET,
+                { expiresIn: '30d' }
+            );
+
+            const cleanCompanyUser = admin.toObject();
+            delete cleanCompanyUser.password;
+
+            return res
+                .status(200)
+                .json({ message: "Login successful", token, user: cleanCompanyUser });
+        }
+        
         if (user) {
             const match = await bcrypt.compare(password, user.password);
             if (!match)
                 return res.status(400).json({ message: "Incorrect password" });
 
             if (!user.isVerified) {
-                await sendOTP(user, "User");
+                await sendOTP(user, "Company User");
                 return res.status(400).json({
                     message: "Email not verified. OTP has been sent again.",
                     isVerified: false,
                 });
             }
 
-            req.session.user = {
+            const payload = {
                 id: user._id,
                 email: user.email,
                 name: user.name,
-            };
-
-            const cleanUser = user.toObject();
-            delete cleanUser.password;
-
-            return res
-                .status(200)
-                .json({ message: "Login successful", user: cleanUser });
-        }
-
-        if (companyUser) {
-            const match = await bcrypt.compare(password, companyUser.password);
-            if (!match)
-                return res.status(400).json({ message: "Incorrect password" });
-
-            if (!companyUser.isVerified) {
-                await sendOTP(companyUser, "Company User");
-                return res.status(400).json({
-                    message: "Email not verified. OTP has been sent again.",
-                    isVerified: false,
-                });
+                role: user.role
             }
 
-            req.session.user = {
-                id: companyUser._id,
-                email: companyUser.email,
-                name: companyUser.name,
-            };
+            const token = jwt.sign(
+                payload,
+                process.env.JWT_SECRET,
+                { expiresIn: '30d' }
+            );
 
-            const cleanCompanyUser = companyUser.toObject();
+            const cleanCompanyUser = user.toObject();
             delete cleanCompanyUser.password;
 
             return res
                 .status(200)
-                .json({ message: "Login successful", user: cleanCompanyUser });
+                .json({ message: "Login successful", token, user: cleanCompanyUser });
         }
 
         return res.status(400).json({ message: "User not found" });
@@ -302,7 +487,8 @@ const dashboard = async (req, res) => {
 };
 
 module.exports = {
-    register,
+    registerSuperAdmin,
+    registerAdmin,
     verifyOTP,
     resendOTP,
     login,

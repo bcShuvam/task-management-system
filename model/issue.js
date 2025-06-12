@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const IssueSchema = mongoose.Schema({
+    mainAdminId: {type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true},
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: true },
@@ -10,7 +11,7 @@ const IssueSchema = mongoose.Schema({
     issueVoiceMessage: {type: String, default: ''},
     issueStatus: { type: String, default: 'Unassigned' },
     isAssigned: { type: Boolean, default: false },
-    assignedUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'CompanyUser', required: false },
+    assignedUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
     issueOpenDatetime: { type: Date, default: new Date },
     issueDeadlineDateTime: { type: Date, required: true },
     issueAssignedDatetime: { type: Date, required: false },

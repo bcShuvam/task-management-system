@@ -1,5 +1,8 @@
+const Admin = require('../model/admin');
+const Company = require('../model/company');
 const Issue = require('../model/issue');
 const nodemailer = require("nodemailer");
+const User = require('../model/user');
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -90,6 +93,7 @@ const createIssue = async (req, res) => {
     try {
         const userId = req.params.id;
         const {
+            mainAdminId,
             companyId,
             categoryId,
             subCategoryId,
@@ -104,11 +108,25 @@ const createIssue = async (req, res) => {
             issueDeadlineDateTime
         } = req.body;
 
+        // Basic validations
         if (!userId) return res.status(400).json({ message: 'userId is required' });
         if (!companyId || !categoryId || !subCategoryId || !issueDeadlineDateTime)
             return res.status(400).json({ message: 'companyId, categoryId, subCategoryId and issueDeadlineDateTime are required' });
 
+        const foundCompany = await Company.findById(companyId);
+        if (!foundCompany) return res.status(400).json({ message: 'Company not found' });
+
+        const foundMainAdmin = await Admin.findById(mainAdminId);
+        if (!foundMainAdmin) return res.status(400).json({ message: 'Main admin not found' });
+
+        const foundCreator = await User.findById(createdById);
+        if (!foundCreator) return res.status(400).json({ message: 'Creator (createdById) not found' });
+
+        console.log('Check List Passed');
+
+        // Create the issue
         const newIssue = await Issue.create({
+            mainAdminId,
             companyId,
             categoryId,
             subCategoryId,
@@ -123,7 +141,16 @@ const createIssue = async (req, res) => {
             issueDeadlineDateTime
         });
 
+        console.log('Issue Created');
+
         if (!newIssue) return res.status(400).json({ message: 'Issue creation failed' });
+
+        // Increment counters
+        foundMainAdmin.totalPost += 1;
+        foundCompany.totalIssues += 1;
+
+        await foundMainAdmin.save();
+        await foundCompany.save();
 
         // Populate related fields for email
         const populatedIssue = await Issue.findById(newIssue._id)
@@ -132,27 +159,30 @@ const createIssue = async (req, res) => {
             .populate('categoryId', 'categoryName')
             .populate('subCategoryId', 'subCategoryName');
 
-        if (populatedIssue.assignedUserId && populatedIssue.assignedUserId.email) {
+        // Send email if assigned
+        if (populatedIssue.assignedUserId?.email) {
+            const emailText = `Hello ${populatedIssue.assignedUserId.name},
+
+            You have been assigned a new issue in the Task Management System.
+
+            📌 Issue Details:
+            - Category: ${populatedIssue.categoryId?.categoryName || "N/A"}
+            - Subcategory: ${populatedIssue.subCategoryId?.subCategoryName || "N/A"}
+            - Description: ${populatedIssue.issueDetails || "N/A"}
+            - Deadline: ${issueDeadlineDateTime}
+
+            🧑‍💼 Assigned by: ${populatedIssue.createdById?.name || "Unknown"}
+
+            Please log in to the TMS system to view and manage this task.
+
+            Best regards,  
+            TMS Team`;
+
             await transporter.sendMail({
                 from: "dean42328@gmail.com",
                 to: populatedIssue.assignedUserId.email,
                 subject: "New Task Assigned to You in TMS",
-                text: `Hello ${populatedIssue.assignedUserId.name},
-
-                You have been assigned a new issue in the Task Management System.
-
-                📌 Issue Details:
-                - Category: ${populatedIssue.categoryId.categoryName}
-                - Subcategory: ${populatedIssue.subCategoryId.subCategoryName}
-                - Description: ${populatedIssue.issueDetails || "N/A"}
-                - Deadline: ${issueDeadlineDateTime}
-
-                🧑‍💼 Assigned by: ${populatedIssue.createdById.name}
-
-                Please log in to the TMS system to view and manage this task.
-
-                Best regards,  
-                TMS Team`
+                text: emailText
             });
         }
 
@@ -163,6 +193,7 @@ const createIssue = async (req, res) => {
         return res.status(500).json({ message: err.message });
     }
 };
+
 
 const applyIssue = async (req, res) => {
     try {

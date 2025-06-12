@@ -1,24 +1,24 @@
 const Subscription = require("../model/subscription");
-const User = require("../model/user");
+const Admin = require("../model/admin");
 const bcrypt = require("bcrypt");
 
-const getAllUsers = async (req, res) => {
+const getAllAdmins = async (req, res) => {
     try {
-        const users = await User.find({role: 'Admin'}).populate('subscriptionId');
-        if (!users)
-            return res.status(400).json({ message: "Users not found", users: [] });
-        return res.status(200).json({ message: "Found Users", users });
+        const foundAdmins = await Admin.find({role: 'Admin'}).populate('subscriptionId');
+        if (!foundAdmins)
+            return res.status(400).json({ message: "Users not found", admins: [] });
+        return res.status(200).json({ message: "Found Users", admins: foundAdmins });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
 };
 
-const getUserById = async (req, res) => {
+const getAdminById = async (req, res) => {
     try {
         const id = req.query.id;
         if (!id) return res.status(400).json({ message: 'User id is required' });
 
-        const foundUser = await User.findById(id).populate('subscriptionId');
+        const foundUser = await Admin.findById(id).populate('subscriptionId');
         if (!foundUser)
             return res.status(400).json({ message: "User not found", user: {} });
 
@@ -29,7 +29,7 @@ const getUserById = async (req, res) => {
 };
 
 
-const createUser = async (req, res) => {
+const createAdmin = async (req, res) => {
     try {
         let { name, email, password, phone, role, subscriptionId, subscriptionStatus } = req.body;
         if ((!name, !email, !password, !phone, !role, !subscriptionId))
@@ -38,7 +38,7 @@ const createUser = async (req, res) => {
                     "name, email, password, phone, role and subscription are required",
             });
 
-        const foundUser = await User.findOne({ email });
+        const foundUser = await Admin.findOne({ email });
         if (foundUser)
             return res.status(400).json({ message: "Email already used" });
 
@@ -66,12 +66,12 @@ const createUser = async (req, res) => {
     }
 };
 
-const updateUser = async (req, res) => {
+const updateAdmin = async (req, res) => {
     try {
         const id = req.query.id;
         let { name, email, phone, role, subscriptionId, subscriptionStatus, password } = req.body;
 
-        const foundUser = await User.findById(id);
+        const foundUser = await Admin.findById(id);
         if (!foundUser)
             return res.status(400).json({ message: "User not found" });
 
@@ -84,37 +84,41 @@ const updateUser = async (req, res) => {
             subscriptionName = subscriptionObj.name;
         }
 
-        if (password) {
-            password = await bcrypt.hash(password, 10);
-            foundUser.password = password;
+        // Handle password update
+        if (password && password.trim() !== "") {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            foundUser.password = hashedPassword;
+
+            // Send password update email
+            await sendPasswordUpdateEmail(foundUser.email, password);
         }
 
-        foundUser.name = name ?? foundUser.name;
-        foundUser.email = email ?? foundUser.email;
-        foundUser.phone = phone ?? foundUser.phone;
-        foundUser.role = role ?? foundUser.role;
-        foundUser.subscriptionId = subscriptionId ?? foundUser.subscriptionId;
-        foundUser.subscriptionStatus = subscriptionStatus ?? foundUser.subscriptionStatus;
+        // Update other fields if provided and not empty
+        if (name && name.trim() !== "") foundUser.name = name;
+        if (email && email.trim() !== "") foundUser.email = email;
+        if (phone && phone.trim() !== "") foundUser.phone = phone;
+        if (role && role.trim() !== "") foundUser.role = role;
+        if (subscriptionId && subscriptionId.trim() !== "") foundUser.subscriptionId = subscriptionId;
+        if (subscriptionStatus && subscriptionStatus.trim() !== "") foundUser.subscriptionStatus = subscriptionStatus;
 
         await foundUser.save();
 
-        return res
-            .status(200)
-            .json({ message: "User updated successfully.", user: foundUser });
+        return res.status(200).json({ message: "User updated successfully.", user: foundUser });
+
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
 };
 
-const deleteUser = async (req, res) => {
+const deleteAdmin = async (req, res) => {
     try {
-        const id = req.query.id;
+        const id = req.params.id;
 
         if (!id) {
             return res.status(400).json({ message: "id is required" });
         }
 
-        const deletedUser = await User.findByIdAndDelete(id);
+        const deletedUser = await Admin.findByIdAndDelete(id);
 
         if (!deletedUser) {
             return res.status(404).json({ message: "User not found" });
@@ -126,14 +130,14 @@ const deleteUser = async (req, res) => {
     }
 };
 
-const changePassword = async (req, res) => {
+const changeAdminPassword = async (req, res) => {
     try {
         const id = req.query.id;
         const {password, newPassword } = req.body;
         if(!id) return res.status(400).json({message: 'User id is required'});
         if(!password, !newPassword) return res.status(400).json({message: 'password and newPassword are required'});
     
-        const foundUser = await User.findById(id);
+        const foundUser = await Admin.findById(id);
         if(!foundUser) return res.status(400).json({message: 'User not found'});
         
         const match = await bcrypt.compare(password, foundUser.password);
@@ -150,10 +154,10 @@ const changePassword = async (req, res) => {
 }
 
 module.exports = {
-    getAllUsers,
-    getUserById,
-    createUser,
-    updateUser,
-    deleteUser,
-    changePassword
+    getAllAdmins,
+    getAdminById,
+    createAdmin,
+    updateAdmin,
+    deleteAdmin,
+    changeAdminPassword
 };
