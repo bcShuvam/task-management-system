@@ -89,110 +89,110 @@ const getCompanyIssues = async (req, res) => {
     }
 };
 
-const createIssue = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const {
-            mainAdminId,
-            companyId,
-            categoryId,
-            subCategoryId,
-            createdById,
-            issueDetails,
-            issueImage,
-            issueStatus,
-            isAssigned,
-            assignedUserId,
-            issueAssignedDatetime,
-            onProgress,
-            issueDeadlineDateTime
-        } = req.body;
+// const createIssue = async (req, res) => {
+//     try {
+//         const userId = req.params.id;
+//         const {
+//             mainAdminId,
+//             companyId,
+//             categoryId,
+//             subCategoryId,
+//             createdById,
+//             issueDetails,
+//             issueImage,
+//             issueStatus,
+//             isAssigned,
+//             assignedUserId,
+//             issueAssignedDatetime,
+//             onProgress,
+//             issueDeadlineDateTime
+//         } = req.body;
 
-        // Basic validations
-        if (!userId) return res.status(400).json({ message: 'userId is required' });
-        if (!companyId || !categoryId || !subCategoryId || !issueDeadlineDateTime)
-            return res.status(400).json({ message: 'companyId, categoryId, subCategoryId and issueDeadlineDateTime are required' });
+//         // Basic validations
+//         if (!userId) return res.status(400).json({ message: 'userId is required' });
+//         if (!companyId || !categoryId || !subCategoryId || !issueDeadlineDateTime)
+//             return res.status(400).json({ message: 'companyId, categoryId, subCategoryId and issueDeadlineDateTime are required' });
 
-        const foundCompany = await Company.findById(companyId);
-        if (!foundCompany) return res.status(400).json({ message: 'Company not found' });
+//         const foundCompany = await Company.findById(companyId);
+//         if (!foundCompany) return res.status(400).json({ message: 'Company not found' });
 
-        const foundMainAdmin = await Admin.findById(mainAdminId);
-        if (!foundMainAdmin) return res.status(400).json({ message: 'Main admin not found' });
+//         const foundMainAdmin = await Admin.findById(mainAdminId);
+//         if (!foundMainAdmin) return res.status(400).json({ message: 'Main admin not found' });
 
-        const foundCreator = await User.findById(createdById);
-        if (!foundCreator) return res.status(400).json({ message: 'Creator (createdById) not found' });
+//         const foundCreator = await User.findById(createdById);
+//         if (!foundCreator) return res.status(400).json({ message: 'Creator (createdById) not found' });
 
-        console.log('Check List Passed');
+//         console.log('Check List Passed');
 
-        // Create the issue
-        const newIssue = await Issue.create({
-            mainAdminId,
-            companyId,
-            categoryId,
-            subCategoryId,
-            assignedUserId,
-            createdById,
-            issueDetails,
-            issueImage,
-            issueStatus: assignedUserId ? 'onProgress' : 'Unassigned',
-            isAssigned: !!assignedUserId,
-            issueAssignedDatetime: assignedUserId ? issueAssignedDatetime || new Date() : undefined,
-            onProgress: !!assignedUserId,
-            issueDeadlineDateTime
-        });
+//         // Create the issue
+//         const newIssue = await Issue.create({
+//             mainAdminId,
+//             companyId,
+//             categoryId,
+//             subCategoryId,
+//             assignedUserId,
+//             createdById,
+//             issueDetails,
+//             issueImage,
+//             issueStatus: assignedUserId ? 'onProgress' : 'Unassigned',
+//             isAssigned: !!assignedUserId,
+//             issueAssignedDatetime: assignedUserId ? issueAssignedDatetime || new Date() : undefined,
+//             onProgress: !!assignedUserId,
+//             issueDeadlineDateTime
+//         });
 
-        console.log('Issue Created');
+//         console.log('Issue Created');
 
-        if (!newIssue) return res.status(400).json({ message: 'Issue creation failed' });
+//         if (!newIssue) return res.status(400).json({ message: 'Issue creation failed' });
 
-        // Increment counters
-        foundMainAdmin.totalPost += 1;
-        foundCompany.totalIssues += 1;
+//         // Increment counters
+//         foundMainAdmin.totalPost += 1;
+//         foundCompany.totalIssues += 1;
 
-        await foundMainAdmin.save();
-        await foundCompany.save();
+//         await foundMainAdmin.save();
+//         await foundCompany.save();
 
-        // Populate related fields for email
-        const populatedIssue = await Issue.findById(newIssue._id)
-            .populate('assignedUserId', 'email name')
-            .populate('createdById', 'name')
-            .populate('categoryId', 'categoryName')
-            .populate('subCategoryId', 'subCategoryName');
+//         // Populate related fields for email
+//         const populatedIssue = await Issue.findById(newIssue._id)
+//             .populate('assignedUserId', 'email name')
+//             .populate('createdById', 'name')
+//             .populate('categoryId', 'categoryName')
+//             .populate('subCategoryId', 'subCategoryName');
 
-        // Send email if assigned
-        if (populatedIssue.assignedUserId?.email) {
-            const emailText = `Hello ${populatedIssue.assignedUserId.name},
+//         // Send email if assigned
+//         if (populatedIssue.assignedUserId?.email) {
+//             const emailText = `Hello ${populatedIssue.assignedUserId.name},
 
-            You have been assigned a new issue in the Task Management System.
+//             You have been assigned a new issue in the Task Management System.
 
-            📌 Issue Details:
-            - Category: ${populatedIssue.categoryId?.categoryName || "N/A"}
-            - Subcategory: ${populatedIssue.subCategoryId?.subCategoryName || "N/A"}
-            - Description: ${populatedIssue.issueDetails || "N/A"}
-            - Deadline: ${issueDeadlineDateTime}
+//             📌 Issue Details:
+//             - Category: ${populatedIssue.categoryId?.categoryName || "N/A"}
+//             - Subcategory: ${populatedIssue.subCategoryId?.subCategoryName || "N/A"}
+//             - Description: ${populatedIssue.issueDetails || "N/A"}
+//             - Deadline: ${issueDeadlineDateTime}
 
-            🧑‍💼 Assigned by: ${populatedIssue.createdById?.name || "Unknown"}
+//             🧑‍💼 Assigned by: ${populatedIssue.createdById?.name || "Unknown"}
 
-            Please log in to the TMS system to view and manage this task.
+//             Please log in to the TMS system to view and manage this task.
 
-            Best regards,  
-            TMS Team`;
+//             Best regards,  
+//             TMS Team`;
 
-            await transporter.sendMail({
-                from: "dean42328@gmail.com",
-                to: populatedIssue.assignedUserId.email,
-                subject: "New Task Assigned to You in TMS",
-                text: emailText
-            });
-        }
+//             await transporter.sendMail({
+//                 from: "dean42328@gmail.com",
+//                 to: populatedIssue.assignedUserId.email,
+//                 subject: "New Task Assigned to You in TMS",
+//                 text: emailText
+//             });
+//         }
 
-        return res.status(201).json({ message: 'Issue created successfully', issue: populatedIssue });
+//         return res.status(201).json({ message: 'Issue created successfully', issue: populatedIssue });
 
-    } catch (err) {
-        console.error("Issue creation error:", err);
-        return res.status(500).json({ message: err.message });
-    }
-};
+//     } catch (err) {
+//         console.error("Issue creation error:", err);
+//         return res.status(500).json({ message: err.message });
+//     }
+// };
 
 
 const applyIssue = async (req, res) => {
@@ -238,4 +238,4 @@ const deleteIssue = async (req, res) => {
     }
 }
 
-module.exports = { getMyIssue, getCompanyIssues, createIssue, applyIssue, deleteIssue };
+module.exports = { getMyIssue, getCompanyIssues, applyIssue, deleteIssue };
