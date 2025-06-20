@@ -11,7 +11,13 @@ const verifyRole = require('./middleware/verifyRoles');
 connectDB();
 
 // Routes
-const authRoute = require('./controller/userAuthController');
+// const authRoute = require('./controller/userAuthController');
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.path}`);
+  next();
+});
 
 // built-in middleware to handle urlencoded data
 // in other words, form data:
