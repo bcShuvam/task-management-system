@@ -37,7 +37,7 @@ app.use(verifyJWT);
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
 app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));
 app.use('/api/category', require('./routes/category'));
-app.use('/api/subcategory', require('./routes/subcategory'));
+app.use('/api/subcategory', require('./routes/subCategory'));
 app.use('/api/company', require('./routes/company'));
 app.use('/api/issue', require('./routes/issueRoutes'));
 
