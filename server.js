@@ -33,7 +33,7 @@ app.use(session({
 
 app.use('/api/test', require('./routes/test'));
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use(verifyJWT);
+// app.use(verifyJWT);
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
 app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));
 app.use('/api/category', require('./routes/category'));
