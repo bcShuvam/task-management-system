@@ -4,6 +4,11 @@ const {registerSuperAdmin, registerAdmin, verifyOTP, resendOTP, login, logout, d
 const verifyJWT = require('../middleware/verifyJWT');
 const verifyRole = require('../middleware/verifyRoles');
 
+router.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.originalUrl}`);
+  next();
+});
+
 router.post('/register/super-admin', registerSuperAdmin);
 router.post('/register/admin', verifyJWT, verifyRole('Super Admin'), registerAdmin);
 router.post('/verify-otp', verifyOTP);

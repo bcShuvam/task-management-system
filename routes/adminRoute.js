@@ -9,6 +9,11 @@ const {
     changeAdminPassword
 } = require("../controller/adminController");
 
+router.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.originalUrl}`);
+  next();
+});
+
 router.get("/all", getAllAdmins);
 router.get("/", getAdminById);
 router.post("/create", createAdmin);
