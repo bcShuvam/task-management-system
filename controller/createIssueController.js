@@ -85,7 +85,7 @@ const createIssue = async (req, res) => {
       issueImage = issueImage || ''; // fallback if no file and no issueImage sent
     }
 
-    console.log(result);
+    // console.log(result);
 
     // Create the issue
     const newIssue = await Issue.create({

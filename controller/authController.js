@@ -6,13 +6,17 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const Subscription = require('../model/subscription');
 const jwt = require('jsonwebtoken');
+const appUser = process.env.APP_USER;
+const appPassword = process.env.APP_PASSWORD;
 
 // Email Transporter Setup
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "dean42328@gmail.com",
-        pass: "ypdfyswvmbzxtscp", // App password
+        user: appUser,
+        pass: appPassword,
+        // user: "dean42328@gmail.com",
+        // pass: "ypdfyswvmbzxtscp", // App password
     },
 });
 
@@ -336,6 +340,8 @@ const resendOTP = async (req, res) => {
 
 const login = async (req, res) => {
     try {
+        console.log(appUser);
+        console.log(appPassword);
         const { email, password } = req.body;
 
         const superAdmin = await SuperAdmin.findOne({ email });
