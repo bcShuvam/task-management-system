@@ -3,13 +3,18 @@ const Company = require('../model/company');
 const Issue = require('../model/issue');
 const nodemailer = require("nodemailer");
 const User = require('../model/user');
+const appUser = process.env.APP_USER;
+const appPassword = process.env.APP_PASSWORD;
 
+// Email Transporter Setup
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "dean42328@gmail.com",
-    pass: "ypdfyswvmbzxtscp",
-  },
+    service: "gmail",
+    auth: {
+        user: appUser,
+        pass: appPassword,
+        // user: "dean42328@gmail.com",
+        // pass: "ypdfyswvmbzxtscp", // App password
+    },
 });
 
 const remap = (arrayObj) => {
