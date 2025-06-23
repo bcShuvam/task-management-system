@@ -9,11 +9,11 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/register/super-admin', registerSuperAdmin);
+router.post('/register/superAdmin', registerSuperAdmin);
 router.post('/register/admin', verifyJWT, registerAdmin);
 // router.post('/register/admin', verifyJWT, verifyRole('Super Admin'), registerAdmin);
-router.post('/verify-otp', verifyOTP);
-router.post('/resend-otp', resendOTP);
+router.post('/verifyOtp', verifyOTP);
+router.post('/resendOtp', resendOTP);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/dashboard', verifyJWT, dashboard);
