@@ -36,7 +36,7 @@ app.use(express.json());
 //     saveUninitilized: true,
 //     cookie: {secure: false}
 // }));
-
+console.log('Hello world!');
 app.use('/api/test', require('./routes/test'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use(verifyJWT);
