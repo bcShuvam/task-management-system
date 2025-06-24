@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require('express');
-const session = require('express-session');
+// const session = require('express-session');
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -30,16 +30,16 @@ app.use(cors({ origin: "*" }));
 // built-in middleware for json
 app.use(express.json());
 
-app.use(session({
-    secret: 'supersecretkey',
-    resave: false,
-    saveUninitilized: true,
-    cookie: {secure: false}
-}));
+// app.use(session({
+//     secret: 'supersecretkey',
+//     resave: false,
+//     saveUninitilized: true,
+//     cookie: {secure: false}
+// }));
 
 app.use('/api/test', require('./routes/test'));
 app.use('/api/auth', require('./routes/authRoutes'));
-// app.use(verifyJWT);
+app.use(verifyJWT);
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
 app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));
 app.use('/api/category', require('./routes/category'));

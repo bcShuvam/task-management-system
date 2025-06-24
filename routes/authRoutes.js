@@ -10,12 +10,11 @@ router.use((req, res, next) => {
 });
 
 router.post('/register/super-admin', registerSuperAdmin);
-router.post('/register/admin', verifyJWT, registerAdmin);
-// router.post('/register/admin', verifyJWT, verifyRole('Super Admin'), registerAdmin);
+router.post('/register/admin', verifyJWT, verifyRole('Super Admin'), registerAdmin);
 router.post('/verify-otp', verifyOTP);
 router.post('/resend-otp', resendOTP);
 router.post('/login', login);
-router.post('/logout', logout);
-router.get('/dashboard', verifyJWT, dashboard);
+// router.post('/logout', logout);
+// router.get('/dashboard', verifyJWT, dashboard);
 
 module.exports = router;
