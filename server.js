@@ -48,6 +48,10 @@ app.use('/api/company', require('./routes/company'));
 app.use('/api/issue', require('./routes/issueRoutes'));
 
 mongoose.connection.once("open", () => {
-    console.log("Connected to MongoDB...");
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  console.log("Connected to MongoDB...");
+
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    const { address, port } = server.address();
+    console.log(`Server running at http://${address === '::' ? 'localhost' : address}:${port}`);
+  });
 });
