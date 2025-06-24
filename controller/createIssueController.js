@@ -6,13 +6,18 @@ const User = require('../model/user');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+const appUser = process.env.APP_USER;
+const appPassword = process.env.APP_PASSWORD;
 
+// Email Transporter Setup
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "dean42328@gmail.com",
-    pass: "ypdfyswvmbzxtscp",
-  },
+    service: "gmail",
+    auth: {
+        user: appUser,
+        pass: appPassword,
+        // user: "dean42328@gmail.com",
+        // pass: "ypdfyswvmbzxtscp", // App password
+    },
 });
 
 // Cloudinary config
@@ -142,7 +147,8 @@ const createIssue = async (req, res) => {
         TMS Team`;
 
       await transporter.sendMail({
-        from: "dean42328@gmail.com",
+        // from: "dean42328@gmail.com",
+        from: appUser,
         to: populatedIssue.assignedUserId.email,
         subject: "New Task Assigned to You in TMS",
         text: emailText

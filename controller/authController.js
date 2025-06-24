@@ -66,7 +66,8 @@ const registerSuperAdmin = async (req, res) => {
 
         // Send welcome email
         await transporter.sendMail({
-            from: "dean42328@gmail.com",
+            // from: "dean42328@gmail.com",
+            from: appUser,
             to: email,
             subject: "Welcome to Task Management System",
             text: `Hello ${name},
@@ -188,7 +189,8 @@ const registerAdmin = async (req, res) => {
 
         // Send welcome email
         await transporter.sendMail({
-            from: "dean42328@gmail.com",
+            // from: "dean42328@gmail.com",
+            from: appUser,
             to: email,
             subject: "Welcome to Task Management System",
             text: `Hello ${name},
@@ -311,7 +313,8 @@ const resendOTP = async (req, res) => {
         }
 
         await transporter.sendMail({
-            from: "dean42328@gmail.com",
+            // from: "dean42328@gmail.com",
+            from: appUser,
             to: email,
             subject: "Verify Your Task Management System Account",
             text: `Hello,
@@ -356,7 +359,8 @@ const login = async (req, res) => {
             await userObj.save();
 
             await transporter.sendMail({
-                from: "dean42328@gmail.com",
+                // from: "dean42328@gmail.com",
+                from: appUser,
                 to: email,
                 subject: `OTP Verification - ${type} Account`,
                 text: `Hello ${userObj.name},\n\nTo complete your login to the Task Management System (TMS), please use the OTP below:\n\n🔐 OTP: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn’t initiate this request, please ignore this email.\n\nBest regards,\nThe TMS Team`

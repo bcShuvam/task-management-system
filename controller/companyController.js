@@ -4,12 +4,17 @@ const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const User = require('../model/user');
+const appUser = process.env.APP_USER;
+const appPassword = process.env.APP_PASSWORD;
 
+// Email Transporter Setup
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "dean42328@gmail.com",
-        pass: "ypdfyswvmbzxtscp",
+        user: appUser,
+        pass: appPassword,
+        // user: "dean42328@gmail.com",
+        // pass: "ypdfyswvmbzxtscp", // App password
     },
 });
 
@@ -220,7 +225,8 @@ const createCompanyUser = async (req, res) => {
 
         // Send welcome email
         await transporter.sendMail({
-            from: "dean42328@gmail.com",
+            // from: "dean42328@gmail.com",
+            from: appUser,
             to: email,
             subject: "Welcome to Task Management System",
             text: `Hello ${name},
@@ -233,8 +239,8 @@ const createCompanyUser = async (req, res) => {
             🔐 Password: ${password}
 
             📱 Download the TMS app:
-            - Android: https://play.google.com/store/apps/details?id=your.app.id
-            - iOS: https://apps.apple.com/app/idYOUR_APP_ID
+            - Android: coming soon
+            - iOS: coming soon
 
             We recommend changing your password after your first login.
 
