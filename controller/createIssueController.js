@@ -8,6 +8,7 @@ const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const appUser = process.env.APP_USER;
 const appPassword = process.env.APP_PASSWORD;
+const defaultIssueImage = 'https://res.cloudinary.com/dfpxa2e7r/image/upload/v1742724107/uploads/hxygcajy4yau9xe8u16s.jpg';
 
 // Email Transporter Setup
 const transporter = nodemailer.createTransport({
@@ -101,7 +102,7 @@ const createIssue = async (req, res) => {
       assignedUserId,
       createdById,
       issueDetails,
-      issueImage,
+      issueImage: issueImage.trim() === "" ? defaultIssueImage : issueImage,
       issueStatus: assignedUserId ? 'onProgress' : 'Unassigned',
       isAssigned: !!assignedUserId,
       issueAssignedDatetime: assignedUserId ? issueAssignedDatetime || new Date() : undefined,
