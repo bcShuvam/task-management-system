@@ -8,6 +8,7 @@ const connectDB = require("./config/dbConnect");
 const PORT = process.env.PORT || 3001;
 const verifyJWT = require('./middleware/verifyJWT');
 const verifyRole = require('./middleware/verifyRoles');
+const os = require('os');
 connectDB();
 
 // Routes
@@ -51,7 +52,16 @@ mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB...");
 
   const server = app.listen(PORT, '0.0.0.0', () => {
-    const { address, port } = server.address();
-    console.log(`Server running at http://${address === '::' ? 'localhost' : address}:${port}`);
+    const networkInterfaces = os.networkInterfaces();
+    const port = server.address().port;
+
+    console.log("Server is running on the following network interfaces:");
+    for (const [name, infos] of Object.entries(networkInterfaces)) {
+      for (const info of infos) {
+        if (info.family === 'IPv4' && !info.internal) {
+          console.log(`➡️ http://${info.address}:${port} (${name})`);
+        }
+      }
+    }
   });
 });
