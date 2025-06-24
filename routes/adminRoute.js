@@ -19,6 +19,6 @@ router.get("/", getAdminById);
 router.post("/create", createAdmin);
 router.put("/update", updateAdmin);
 router.delete("/delete/:id", deleteAdmin);
-router.put("/changePassword", changeAdminPassword);
+router.put("/change-password", changeAdminPassword);
 
 module.exports = router;
