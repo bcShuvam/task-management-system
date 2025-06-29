@@ -50,18 +50,20 @@ app.use('/api/issue', require('./routes/issueRoutes'));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB...");
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
-    const networkInterfaces = os.networkInterfaces();
-    const port = server.address().port;
+  // const server = app.listen(PORT, '0.0.0.0', () => {
+  //   const networkInterfaces = os.networkInterfaces();
+  //   const port = server.address().port;
 
-    console.log("Server is running on the following network interfaces:");
-    for (const [name, infos] of Object.entries(networkInterfaces)) {
-      for (const info of infos) {
-        if (info.family === 'IPv4' && !info.internal) {
-          console.log(`➡️ http://${info.address}:${port} (${name})`);
-        }
-      }
-    }
-  });
+  //   console.log("Server is running on the following network interfaces:");
+  //   for (const [name, infos] of Object.entries(networkInterfaces)) {
+  //     for (const info of infos) {
+  //       if (info.family === 'IPv4' && !info.internal) {
+  //         console.log(`➡️ http://${info.address}:${port} (${name})`);
+  //       }
+  //     }
+  //   }
+  // });
 });
+// local: http://192.168.1.84:8005

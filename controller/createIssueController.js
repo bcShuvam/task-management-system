@@ -86,8 +86,10 @@ const createIssue = async (req, res) => {
     // Upload image if exists in the request
     if (req.file) {
         result = await uploadToCloudinary(req.file.buffer);
-      issueImage = result.secure_url;
+        console.log('Uploading file');
+        issueImage = result.secure_url;
     } else {
+      console.log('Not uploading file');
       issueImage = issueImage || ''; // fallback if no file and no issueImage sent
     }
 
