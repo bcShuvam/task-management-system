@@ -6,6 +6,8 @@ const IssueSchema = mongoose.Schema({
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: true },
     createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    ticketId: {type: mongoose.Schema.Types.ObjectId, ref: 'TicketNumber'},
+    ticketNumber: {type: Number, default: 0},
     issueDetails: { type: String, default: '' },
     issueImage: {type: String, default: 'https://res.cloudinary.com/dfpxa2e7r/image/upload/v1742724107/uploads/hxygcajy4yau9xe8u16s.jpg'},
     issueVoiceMessage: {type: String, default: ''},
