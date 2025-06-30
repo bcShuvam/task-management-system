@@ -4,6 +4,9 @@ const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const User = require('../model/user');
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const streamifier = require('streamifier');
 
 const appUser = process.env.APP_USER;
 const appPassword = process.env.APP_PASSWORD;
@@ -132,4 +135,9 @@ const createCompany = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
+};
+
+module.exports = {
+  createCompany,
+  upload // Export multer middleware here
 };

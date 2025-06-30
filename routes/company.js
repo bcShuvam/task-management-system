@@ -13,10 +13,16 @@ const {
     updateCompanyUser,
     deleteCompanyUser
 } = require('../controller/companyController');
+const companyController = require('../controller/createCompanyController');
 const verifyRoles = require('../middleware/verifyRoles');
 
 // Company routes
-router.post('/create', createCompany, verifyRoles("Admin"));
+router.post(
+  '/create/:id',
+  companyController.upload.single('logo'),  // ✅ This is crucial
+  companyController.createCompany
+);
+// router.post('/create', createCompany, verifyRoles("Admin"));
 router.get('/all', getAllCompanies, verifyRoles("Admin"));
 router.get('/:id', getCompanyById, verifyRoles("Admin"));
 router.put('/update/:id', updateCompany, verifyRoles("Admin"));

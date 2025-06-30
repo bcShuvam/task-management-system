@@ -8,17 +8,19 @@ const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const appUser = process.env.APP_USER;
 const appPassword = process.env.APP_PASSWORD;
+const ticketNumber = require('../model/ticketNumber');
+const TicketNumber = require('../model/ticketNumber');
 const defaultIssueImage = 'https://res.cloudinary.com/dfpxa2e7r/image/upload/v1742724107/uploads/hxygcajy4yau9xe8u16s.jpg';
 
 // Email Transporter Setup
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: appUser,
-        pass: appPassword,
-        // user: "dean42328@gmail.com",
-        // pass: "ypdfyswvmbzxtscp", // App password
-    },
+  service: "gmail",
+  auth: {
+    user: appUser,
+    pass: appPassword,
+    // user: "dean42328@gmail.com",
+    // pass: "ypdfyswvmbzxtscp", // App password
+  },
 });
 
 // Cloudinary config
@@ -80,14 +82,28 @@ const createIssue = async (req, res) => {
     const foundCreator = await User.findById(createdById);
     if (!foundCreator) return res.status(400).json({ message: 'Creator (createdById) not found' });
 
+    // checking if ticket number is ass
+    let foundTicketNumber = await TicketNumber.findOne({ companyId: companyId });
+
+    if (foundTicketNumber) {
+      foundTicketNumber.ticketNumber += 1;
+      await foundTicketNumber.save();
+    } else {
+      foundTicketNumber = await TicketNumber.create({
+        mainAdminId,
+        companyId,
+        ticketNumber: 1
+      });
+    }
+
     console.log('Check List Passed');
     let result;
 
     // Upload image if exists in the request
     if (req.file) {
-        result = await uploadToCloudinary(req.file.buffer);
-        console.log('Uploading file');
-        issueImage = result.secure_url;
+      result = await uploadToCloudinary(req.file.buffer);
+      console.log('Uploading file');
+      issueImage = result.secure_url;
     } else {
       console.log('Not uploading file');
       issueImage = issueImage || ''; // fallback if no file and no issueImage sent
@@ -97,6 +113,8 @@ const createIssue = async (req, res) => {
 
     // Create the issue
     const newIssue = await Issue.create({
+      ticketId: foundTicketNumber._id,
+      ticketNumber: foundTicketNumber.ticketNumber,
       mainAdminId,
       companyId,
       categoryId,
@@ -158,7 +176,7 @@ const createIssue = async (req, res) => {
       });
     }
 
-    return res.status(201).json({ message: 'Issue created successfully', result, issue: populatedIssue });
+    return res.status(201).json({ message: 'Issue created successfully', result, issue: populatedIssue, ticket: foundTicketNumber });
 
   } catch (err) {
     console.error("Issue creation error:", err);

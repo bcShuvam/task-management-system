@@ -69,10 +69,10 @@ const registerSuperAdmin = async (req, res) => {
             // from: "dean42328@gmail.com",
             from: appUser,
             to: email,
-            subject: "Welcome to Task Management System",
+            subject: "Welcome to Deskgoo Task",
             text: `Hello ${name},
 
-        Welcome to Task Management System (TMS)!
+        Welcome to Deskgoo Task!
 
         Your account has been successfully created. You can now log in using the credentials below:
 
@@ -192,10 +192,10 @@ const registerAdmin = async (req, res) => {
             // from: "dean42328@gmail.com",
             from: appUser,
             to: email,
-            subject: "Welcome to Task Management System",
+            subject: "Welcome to Deskgoo Task",
             text: `Hello ${name},
 
-        Welcome to Task Management System (TMS)!
+        Welcome to Deskgoo Task!
 
         Your account has been successfully created. You can now log in using the credentials below:
 
@@ -316,10 +316,10 @@ const resendOTP = async (req, res) => {
             // from: "dean42328@gmail.com",
             from: appUser,
             to: email,
-            subject: "Verify Your Task Management System Account",
+            subject: "Verify Your Deskgoo Task Account",
             text: `Hello,
 
-        Thank you for registering with Task Management System (TMS).
+        Thank you for registering with Deskgoo Task.
 
         To complete your registration, use the OTP below to verify your account:
 
@@ -363,7 +363,7 @@ const login = async (req, res) => {
                 from: appUser,
                 to: email,
                 subject: `OTP Verification - ${type} Account`,
-                text: `Hello ${userObj.name},\n\nTo complete your login to the Task Management System (TMS), please use the OTP below:\n\n🔐 OTP: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn’t initiate this request, please ignore this email.\n\nBest regards,\nThe TMS Team`
+                text: `Hello ${userObj.name},\n\nTo complete your login to the Deskgoo Task, please use the OTP below:\n\n🔐 OTP: ${otp}\n\nThis code will expire in 10 minutes.\n\nIf you didn’t initiate this request, please ignore this email.\n\nBest regards,\nThe TMS Team`
             });
         };
 
