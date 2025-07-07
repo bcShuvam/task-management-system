@@ -20,6 +20,7 @@ const transporter = nodemailer.createTransport({
 const remap = (arrayObj) => {
     return arrayObj.map(issue => ({
         _id: issue._id,
+        ticketNumber: issue.ticketNumber,
         companyId: issue.companyId,
         categoryId: issue.categoryId?._id || "",
         categoryName: issue.categoryId?.categoryName || "",
