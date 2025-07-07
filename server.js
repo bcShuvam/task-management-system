@@ -38,9 +38,9 @@ app.use(express.json());
 //     cookie: {secure: false}
 // }));
 console.log('Hello world!');
-app.use('/api/test', require('./routes/test'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use(verifyJWT);
+app.use('/api/test', require('./routes/test'));
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
 app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));
 app.use('/api/category', require('./routes/category'));
