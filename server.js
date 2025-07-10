@@ -11,6 +11,16 @@ const verifyRole = require('./middleware/verifyRoles');
 const os = require('os');
 connectDB();
 
+// Add this line after main: server.js line on package.json file
+// "type": "module", to use import
+
+var admin = require("firebase-admin");
+var serviceAccount = require("./deskgoo-task-firebase-adminsdk-fbsvc-b498e99945.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 // Routes
 // const authRoute = require('./controller/userAuthController');
 
@@ -37,8 +47,8 @@ app.use(express.json());
 //     saveUninitilized: true,
 //     cookie: {secure: false}
 // }));
-console.log('Hello world!');
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/notification', require('./routes/notificationRoutes'));
 app.use(verifyJWT);
 app.use('/api/test', require('./routes/test'));
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
