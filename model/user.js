@@ -29,7 +29,8 @@ const UserSchema = mongoose.Schema({
     userAccess: { type: AccessSchema },
     categoriesAccess: { type: AccessSchema },
     issueAccess: { type: AccessSchema },
-    canAssignIssue: { type: Boolean, default: false }
+    canAssignIssue: { type: Boolean, default: false },
+    fbToken: { type: String, default: "" },
 });
 
 const User = mongoose.model("User", UserSchema);

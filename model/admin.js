@@ -23,6 +23,7 @@ const AdminSchema = new mongoose.Schema({
     isExpired: { type: Boolean, default: false },
     isExtended: { type: Boolean, default: false },
     profileImage: { type: String, default: "https://res.cloudinary.com/dfpxa2e7r/image/upload/v1742724107/uploads/xrxak1efn47qho6aw4a7.png" },
+    fbToken: { type: String, default: "" },
     otp: { type: String },
     otpExpiry: { type: Date },
     isVerified: { type: Boolean, default: false },
