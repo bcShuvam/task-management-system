@@ -22,6 +22,7 @@ const IssueSchema = mongoose.Schema({
     comment: { type: String, default: '' },
     totalTime: { type: Number, default: 0 },
     approvalStatus: { type: Boolean, default: false },
+    totalComments: {type: Number, default: 0},
     feedback: { type: String, default: '' }
 });
 
