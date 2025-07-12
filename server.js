@@ -57,6 +57,7 @@ app.use('/api/category', require('./routes/category'));
 app.use('/api/subcategory', require('./routes/subCategory'));
 app.use('/api/company', require('./routes/company'));
 app.use('/api/issue', require('./routes/issueRoutes'));
+app.use('/api/comment', require('./routes/commentRoute'));
 
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB...");
