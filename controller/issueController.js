@@ -43,7 +43,10 @@ const remap = (arrayObj) => {
         comment: issue.comment || "",
         totalTime: issue.totalTime || 0,
         approvalStatus: issue.approvalStatus || false,
-        feedback: issue.feedback || ""
+        feedback: issue.feedback || "",
+        totalComments: issue.totalComments,
+        likes: issue.likes,
+        dislikes: issue.dislikes,
     }));
 }
 
