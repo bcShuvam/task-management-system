@@ -12,6 +12,7 @@ const SuperAdminSchema = new mongoose.Schema({
     totalEarnings: { type: Number, default: 0 },
     totalActiveSales: { type: Number, default: 0 },
     profileImage: { type: String, default: "https://res.cloudinary.com/dfpxa2e7r/image/upload/v1742724107/uploads/xrxak1efn47qho6aw4a7.png" },
+    fbToken: { type: String, default: "" },
     otp: { type: String },
     otpExpiry: { type: Date },
     isVerified: { type: Boolean, default: false }

@@ -15,7 +15,7 @@ connectDB();
 // "type": "module", to use import
 
 var admin = require("firebase-admin");
-var serviceAccount = require("./deskgoo-task-firebase-adminsdk-fbsvc-b498e99945.json");
+var serviceAccount = require("./firebaseAdmin.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -48,8 +48,8 @@ app.use(express.json());
 //     cookie: {secure: false}
 // }));
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/notification', require('./routes/notificationRoutes'));
 app.use(verifyJWT);
+app.use('/api/notification', require('./routes/notificationRoutes'));
 app.use('/api/test', require('./routes/test'));
 app.use('/api/admin', verifyRole('Super Admin'), require('./routes/adminRoute'));
 app.use('/api/subscription', verifyRole('Super Admin'), require('./routes/subscriptionRoutes'));

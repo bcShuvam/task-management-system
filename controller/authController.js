@@ -384,7 +384,8 @@ const login = async (req, res) => {
                 id: superAdmin._id,
                 email: superAdmin.email,
                 name: superAdmin.name,
-                role: superAdmin.role
+                role: superAdmin.role,
+                fbToken: superAdmin.fbToken
             }
 
             const token = jwt.sign(
@@ -420,6 +421,7 @@ const login = async (req, res) => {
                 name: admin.name,
                 role: admin.role,
                 isMainAdmin: admin.isMainAdmin,
+                fbToken: admin.fbToken
             }
 
             const token = jwt.sign(
@@ -453,7 +455,8 @@ const login = async (req, res) => {
                 id: user._id,
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                fbToken: user.fbToken
             }
 
             const token = jwt.sign(
