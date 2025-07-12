@@ -8,7 +8,7 @@ const getComment = async (req, res) => {
 
         const foundComments = await Comment.find({issueId});
 
-        return res.status(200).json({message: foundComments.length === 0 ? 'Comments not found' : 'Comments found successfully', comments: foundComments});
+        return res.status(200).json({message: foundComments.length === 0 ? 'Comments not found' : 'Comments found successfully', totalComments: foundComments.length, comments: foundComments});
     } catch (err) {
         return res.status(500).json({message: err.message});
     }
